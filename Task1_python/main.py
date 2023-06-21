@@ -136,7 +136,10 @@ def clearJson(num):
     else:
         print("Невернный ввод! Такой id не найден")
 
-
+sizeOfDictJson = os.path.getsize("note.json")  # определяю пустой файл или нет (в файле должно быть хотя бы "{}")
+if sizeOfDictJson == 0:
+    with open("note.json", "w") as file1:
+        json.dump(dict(), file1, indent=2, ensure_ascii=False)  # записываю в файл пустой словарь
 
 print(DTofNote())  # Вывод времени на экран
 
@@ -168,4 +171,3 @@ while (comand != "exit"):
         print("Досвидание!")
         break
 
-sizeOfDictJson = os.path.getsize("note.json")  # определяю пустой файл или нет (в файле должно быть хотя бы "{}")
