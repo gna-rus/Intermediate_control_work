@@ -25,13 +25,13 @@ def DTofNote():
     vremya = datetime.datetime.now()  # Вызов метода now из класса datetime
     return vremya.strftime("%m/%d/%Y | %H:%M:%S")
 
+# Функция Оглавления
 def miniMenu():
     with open("note.json") as file:
         data = json.load(file)
         print("Оглавление: ")
         for key, value in data.items():
             print(f'{key} - {value[0]}')
-
 
 # Функция генерация нового Id
 def findId(dictJson):
@@ -77,7 +77,6 @@ def readJson(nums):
             print(f'{data[nums][2:]}')
         else:
             print("Error!!! Не корректный id")
-
 
 # Функция редактирования заметок
 def editJson(num):
