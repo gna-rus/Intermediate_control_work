@@ -15,9 +15,9 @@ import os
 
 def menu():
     print("add - добавить элемент в заметки")
-    print("read - прочитать все заметки")
-    print("edit - редактирование заметки")
-    print("clear - удалить все заметки")
+    print("read - прочитать по id или все заметки")
+    print("edit - редактировать по id")
+    print("clear - удалить по id или все заметки")
 
 # Функция Даты и Времени в данный момент
 def DTofNote():
@@ -38,7 +38,6 @@ def findId(dictJson):
 # Добавляю элемент в заметки
 def addNote(noteTitle, bodyTitle, timeJson):
     newNote = dict()
-    sizeOfDictJson = os.path.getsize("note.json")  # определяю пустой файл или нет (в файле должно быть хотя бы "{}")
     # записываю в файл данные
     dictJson = json.load(open("note.json"))  # перевожу Json в словарь
     id1 = findId(dictJson)
@@ -95,12 +94,39 @@ def editJson(num):
     else:
         print("Неверный ввод. Такой id не найден")
 
+
+# Функция для удаления id или всех заметок
+def clearJson(num):
+    newDickJson = dict()  #словарь-буфер
+    flag = False
+    # проверка, есть ли вообще такое id в файле
+    with open("note.json") as file:
+        data = json.load(file)
+        if num in data.keys():
+            flag = True
+
+    if flag == True and num != "all":
+        with open("note.json", "r") as file1:
+            dictJson = json.load(file1)
+        # цикл для поиска id
+        for key, value in dictJson.items():
+            if key != num:
+                newDickJson[key] = value
+        with open('note.json', 'w') as file:
+            json.dump(newDickJson, file, indent=2, ensure_ascii=False)
+    elif num == "all":
+        with open("note.json", "w") as file1:
+            json.dump(dict(), file1, indent=2, ensure_ascii=False) #записываю в файл пустой словарь
+            print("Все заметки удалены!")
+    else:
+        print("Невернный ввод! Такой id не найден")
+
 menu()
 print(DTofNote())  # Вывод времени на экран
 
 # Меню ввода
 newNote = dict()
-comand = "read"
+comand = "add"
 if comand == "add":
     noteTitle = "Голова"
     bodyTitle = "Тело"
@@ -111,6 +137,12 @@ elif comand == "read":
     readJson(nums)
 elif comand == "edit":
     miniMenu()
-    nums = input("Введите номер id для редактирования  ")
+    nums = input("Введите номер id для редактирования ")
     editJson(nums)
+elif comand == "clear":
+    miniMenu()
+    nums = input("Введите номер id (или all для удаления всех заметок) ")
+    clearJson(nums)
 
+
+sizeOfDictJson = os.path.getsize("note.json")  # определяю пустой файл или нет (в файле должно быть хотя бы "{}")
