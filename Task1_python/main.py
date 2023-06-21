@@ -11,30 +11,51 @@
 
 import json
 import datetime
+import os
+
 
 def menu():
     print("add - добавить элемент в заметки")
     print("read - прочитать все заметки")
     print("clear - удалить все заметки")
 
+
 # Функция генерация нового Id
-def findId(nums):
-    with open("note.json", "r", encoding="utf-8") as note:
-        if nums == 0:
-            return 1
-        else:
-            nums = json.load(note)
-            print(nums)
-            return nums+1
+def findId(dictJson):
+    return len(dictJson) + 1
+
 
 # Добавляю элемент в заметки
 def addNote(noteTitle, bodyTitle, timeJson):
     newNote = dict()
-
+    sizeOfDictJson = os.path.getsize("note.json")  # определяю пустой файл или нет (в файле должно быть хотя бы "{}")
     # записываю в файл данные
-    with open("note.json", "a", encoding="utf-8") as note:
-        newNote[1] = [noteTitle, bodyTitle, timeJson]
-        json.dump(newNote, note, indent=2, sort_keys=True)
+    dictJson = json.load(open("note.json"))  # перевожу Json в словарь
+    id1 = findId(dictJson)
+    newNote[id1] = [noteTitle, bodyTitle, timeJson]
+    dictJson.update(newNote)  # добавляю в словарь новый элемент
+
+    json.dump(dictJson, open("note.json", 'w'), indent=2, ensure_ascii=False)  # перевожу словарь в Json
+    # (ensure_ascii - позволяет записывать кирилицу)
+
+
+# Чтение всего файла или по id
+def readJson(nums):
+    # Прочтение заметки
+    with open("note.json") as file:
+        data = json.load(file)  # передаем файловый объект
+        if nums == "all":  # выводим на экран все заметки
+            for key, value in data.items():
+                print(f'{key}: {value[0]}')
+                print(f'{value[1]}')
+                print(f'{value[2:]}')
+        elif nums in data.keys():  # выводим на экран заметки по id
+            print(f'{int(nums)}: {data[nums][0]}')
+            print(f'{data[nums][1]}')
+            print(f'{data[nums][2:]}')
+        else:
+            print("Error!!! Не корректный id")
+
 
 menu()
 vremya = datetime.datetime.now()  # Вызов метода now из класса datetime.
@@ -51,19 +72,13 @@ print(timeJson)  # Вывод времени на экран
 newNote = dict()
 comand = "add"
 if comand == "add":
-    noteTitle = "Head"
-    bodyTitle = "Body"
+    noteTitle = "Голова"
+    bodyTitle = "Тело"
     addNote(noteTitle, bodyTitle, timeJson)
+elif comand == "read":
+    nums = input("Введите номер id (или all для всех заметок) ")
+    readJson(nums)
 
     # newJson = json.dumps(newNote)
     # note.write(newJson)
     # print(type(newJson))
-
-# Прочтение заметки
-with open("note.json") as file:
-    data = json.load(file)  # передаем файловый объект
-    for key, value in data.items():
-        if type(value) == list:
-            print(f'{key}: {", ".join(value)}')
-        else:
-            print(f'{key}: {value}')
