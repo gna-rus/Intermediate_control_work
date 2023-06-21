@@ -17,6 +17,7 @@ def menu():
     print("add - добавить элемент в заметки")
     print("read - прочитать по id или все заметки")
     print("edit - редактировать по id")
+    print("sort - провести сортировку заметок")
     print("clear - удалить по id или все заметки")
     print("exit - Выход")
 
@@ -77,6 +78,23 @@ def readJson(nums):
             print(f'{data[nums][2:]}')
         else:
             print("Error!!! Не корректный id")
+
+# функция сортировки
+def sortJson():
+    newDictSort = dict()
+    with open("note.json", "r") as file1:
+        dictJson = json.load(file1)
+        qw = input("Сортировку проводить по id или по time? id/time: ")
+        if qw == "time": # сортировка по времени (НАДО доработать так как сортирует не по дате а по цифре)
+            newDictSort = dict(sorted(dictJson.items(), key=lambda item: item[1][2]))
+        elif qw == "id": # сортировка по id
+            newDictSort = dict(sorted(dictJson.items()))
+            print(newDictSort)
+        else:
+            print("Невернный ввод")
+    with open('note.json', 'w') as file: # запись в Json нового словаря
+        json.dump(newDictSort, file, indent=2, ensure_ascii=False)
+
 
 # Функция редактирования заметок
 def editJson(num):
@@ -160,6 +178,10 @@ while (comand != "exit"):
         nums = input("Введите номер id для редактирования ")
         editJson(nums)
         input()
+    elif comand == "sort":
+        sortJson()
+        input()
+
     elif comand == "clear":
         miniMenu()
         nums = input("Введите номер id (или all для удаления всех заметок) ")
