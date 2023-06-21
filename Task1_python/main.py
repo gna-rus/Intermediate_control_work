@@ -13,7 +13,6 @@ import json
 import datetime
 import os
 
-
 def menu():
     print("add - добавить элемент в заметки")
     print("read - прочитать по id или все заметки")
@@ -21,16 +20,15 @@ def menu():
     print("clear - удалить по id или все заметки")
     print("exit - Выход")
 
-
 # Функция Даты и Времени в данный момент
 def DTofNote():
     vremya = datetime.datetime.now()  # Вызов метода now из класса datetime
     return vremya.strftime("%m/%d/%Y | %H:%M:%S")
 
-
 def miniMenu():
     with open("note.json") as file:
         data = json.load(file)
+        print("Оглавление: ")
         for key, value in data.items():
             print(f'{key} - {value[0]}')
 
@@ -168,6 +166,6 @@ while (comand != "exit"):
         nums = input("Введите номер id (или all для удаления всех заметок) ")
         clearJson(nums)
     elif comand == "exit":
-        print("Досвидание!")
+        print("До свидания!")
         break
 
