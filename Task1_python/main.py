@@ -13,17 +13,27 @@ import json
 import datetime
 import os
 
-
 def menu():
     print("add - добавить элемент в заметки")
     print("read - прочитать все заметки")
+    print("edit - редактирование заметки")
     print("clear - удалить все заметки")
 
+# Функция Даты и Времени в данный момент
+def DTofNote():
+    vremya = datetime.datetime.now()  # Вызов метода now из класса datetime
+    return vremya.strftime("%m/%d/%Y | %H:%M:%S")
+
+
+def miniMenu():
+    with open("note.json") as file:
+        data = json.load(file)
+        for key, value in data.items():
+            print(f'{key} - {value[0]}')
 
 # Функция генерация нового Id
 def findId(dictJson):
     return len(dictJson) + 1
-
 
 # Добавляю элемент в заметки
 def addNote(noteTitle, bodyTitle, timeJson):
@@ -36,7 +46,8 @@ def addNote(noteTitle, bodyTitle, timeJson):
     dictJson.update(newNote)  # добавляю в словарь новый элемент
 
     json.dump(dictJson, open("note.json", 'w'), indent=2, ensure_ascii=False)  # перевожу словарь в Json
-    # (ensure_ascii - позволяет записывать кирилицу)
+                                                                    # (ensure_ascii - позволяет записывать кирилицу)
+    print(f"Заметка доабвлена!")
 
 
 # Чтение всего файла или по id
@@ -56,29 +67,50 @@ def readJson(nums):
         else:
             print("Error!!! Не корректный id")
 
+# Функция редактирования заметок
+def editJson(num):
+    newDickJson = dict() # словарь-буфер
+    flag = False
+    # проверка, есть ли вообще такое id в файле
+    with open("note.json") as file:
+        data = json.load(file)
+        if num in data.keys():
+            flag = True
+
+    if flag == True:
+        with open("note.json", "r") as file1:
+            dictJson = json.load(file1)
+            newNoteTitle = "Голова!!!"
+            newBodyTitle = "Тело!!!!"
+        # цикл для поиска id
+        for key, value in dictJson.items():
+            print(key, value)
+            if key != num:
+                newDickJson[key] = value
+            else: # если совпадение найдено то вводим корректировку в Заголовок и Тело заметки
+                value[0], value[1], value[2] = newNoteTitle, newBodyTitle, DTofNote()
+                newDickJson[key] = value
+        with open('note.json', 'w') as file:
+            json.dump(newDickJson, file, indent=2, ensure_ascii=False)
+    else:
+        print("Неверный ввод. Такой id не найден")
 
 menu()
-vremya = datetime.datetime.now()  # Вызов метода now из класса datetime.
-timeJson = vremya.strftime("%m/%d/%Y | %H:%M:%S")
-print(timeJson)  # Вывод времени на экран
-
-# Формат заметки {id:[заголовок, тело, дата\время]}
-
-# comand = input("Введите команду: ")
-# noteTitle = input("Введите заголовок заметки: ")
-# bodyTitle = input("Введите тело заметки: ")
+print(DTofNote())  # Вывод времени на экран
 
 # Меню ввода
 newNote = dict()
-comand = "add"
+comand = "read"
 if comand == "add":
     noteTitle = "Голова"
     bodyTitle = "Тело"
-    addNote(noteTitle, bodyTitle, timeJson)
+    addNote(noteTitle, bodyTitle, DTofNote())
 elif comand == "read":
-    nums = input("Введите номер id (или all для всех заметок) ")
+    miniMenu()
+    nums = input("Введите номер id (или all для вывода всех заметок) ")
     readJson(nums)
+elif comand == "edit":
+    miniMenu()
+    nums = input("Введите номер id для редактирования  ")
+    editJson(nums)
 
-    # newJson = json.dumps(newNote)
-    # note.write(newJson)
-    # print(type(newJson))
