@@ -198,11 +198,11 @@ while (comand != "exit"):
     elif comand == "sort":
         sortJson()
         input()
-
     elif comand == "clear":
         miniMenu()
         nums = input("Введите номер id (или all для удаления всех заметок) ")
         clearJson(nums)
+        input()
     elif comand == "exit":
         print("До свидания!")
         break
