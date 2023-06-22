@@ -15,16 +15,21 @@ import os
 
 def menu():
     print("add - добавить элемент в заметки")
-    print("read - прочитать по id или все заметки")
-    print("edit - редактировать по id")
-    print("sort - провести сортировку заметок")
-    print("clear - удалить по id или все заметки")
+    print("read - прочесть заметку по id или все заметки")
+    print("edit - редактировать заметку по id")
+    print("sort - осуществить сортировку заметок")
+    print("clear - удалить заметку по id или все заметки")
     print("exit - Выход")
 
 # Функция Даты и Времени в данный момент
 def DTofNote():
-    vremya = datetime.datetime.now()  # Вызов метода now из класса datetime
-    return vremya.strftime("%m/%d/%Y | %H:%M:%S")
+    # Вызов метода now из класса datetime
+    # (так делаю потому что есть конфликт с микросекундами в дате datetime.datetime.now())
+    abc = f"{str(datetime.datetime.now().year)}-{str(datetime.datetime.now().month)}-{str(datetime.datetime.now().day)} " \
+          f"{str(datetime.datetime.now().hour)}:{str(datetime.datetime.now().minute)}:{str(datetime.datetime.now().second)}"
+    # Перегоняю строку abc в секунд
+    rez = datetime.datetime.strptime(abc, '%Y-%m-%d %H:%M:%S').timestamp()
+    return rez #отправляю секунды
 
 # Функция Оглавления
 def miniMenu():
@@ -38,14 +43,13 @@ def miniMenu():
 def findId(dictJson):
     return len(dictJson) + 1
 
-
 # Добавляю элемент в заметки
-def addNote(noteTitle, bodyTitle, timeJson):
+def addNote(noteTitle, bodyTitle):
     newNote = dict()
     # записываю в файл данные
     dictJson = json.load(open("note.json"))  # перевожу Json в словарь
-    id1 = findId(dictJson)
-    newNote[id1] = [noteTitle, bodyTitle, timeJson]
+    id1 = findId(dictJson) # создаю новый Id
+    newNote[id1] = [noteTitle, bodyTitle, DTofNote()]
     dictJson.update(newNote)  # добавляю в словарь новый элемент
 
     json.dump(dictJson, open("note.json", 'w'), indent=2, ensure_ascii=False)  # перевожу словарь в Json
@@ -57,12 +61,13 @@ def addNote(noteTitle, bodyTitle, timeJson):
 def readJson(nums):
     # Прочтение заметки
     with open("note.json") as file:
-        data = json.load(file)  # передаем файловый объект
+        data = json.load(file)  # передаем файловый объект (распаковка из json в словарь)
         if nums == "all":  # выводим на экран все заметки
             for key, value in data.items():
                 print(f'{key}: {value[0]}')
                 print(f'{value[1]}')
-                print(f'{value[2:]}')
+                date_time = str(datetime.datetime.fromtimestamp(int(value[2])))
+                print(f'{date_time}')
         elif nums in data.keys():  # выводим на экран заметки по id
             print(f'{int(nums)}: {data[nums][0]}')
             # далее код для многострочного вывода в командную строку
@@ -75,7 +80,8 @@ def readJson(nums):
                     count += 1
                     print(i, sep="", end="")
             print()
-            print(f'{data[nums][2:]}')
+            date_time = datetime.datetime.fromtimestamp(data[nums][2])
+            print(f'{date_time}')
         else:
             print("Error!!! Не корректный id")
 
@@ -156,7 +162,7 @@ if sizeOfDictJson == 0:
     with open("note.json", "w") as file1:
         json.dump(dict(), file1, indent=2, ensure_ascii=False)  # записываю в файл пустой словарь
 
-print(DTofNote())  # Вывод времени на экран
+print(f"Дата: {datetime.datetime.fromtimestamp(DTofNote())}")  # Вывод времени на экран
 
 # Меню ввода
 comand = ""
@@ -166,7 +172,7 @@ while (comand != "exit"):
     if comand == "add":
         noteTitle = input("Введите заголовок: ")
         bodyTitle = input("Заметка: ")
-        addNote(noteTitle, bodyTitle, DTofNote())
+        addNote(noteTitle, bodyTitle)
         input()
     elif comand == "read":
         miniMenu()
