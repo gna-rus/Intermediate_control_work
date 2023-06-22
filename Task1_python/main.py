@@ -14,34 +14,42 @@ import datetime
 import os
 
 def menu():
+    formaMenu()
     print("add - добавить элемент в заметки")
     print("read - прочесть заметку по id или все заметки")
     print("edit - редактировать заметку по id")
     print("sort - осуществить сортировку заметок")
     print("clear - удалить заметку по id или все заметки")
     print("exit - Выход")
+    formaMenu()
 
 # Функция Даты и Времени в данный момент
 def DTofNote():
     # Вызов метода now из класса datetime
-    # (так делаю потому что есть конфликт с микросекундами в дате datetime.datetime.now())
-    abc = f"{str(datetime.datetime.now().year)}-{str(datetime.datetime.now().month)}-{str(datetime.datetime.now().day)} " \
-          f"{str(datetime.datetime.now().hour)}:{str(datetime.datetime.now().minute)}:{str(datetime.datetime.now().second)}"
-    # Перегоняю строку abc в секунд
+    # (так делаю потому что есть конфликт с микросекундами(!) в дате datetime.datetime.now())
+    current_dateTime = datetime.datetime.now()
+    abc = f"{str(current_dateTime.year)}-{str(current_dateTime.month)}-{str(current_dateTime.day)} " \
+          f"{str(current_dateTime.hour)}:{str(current_dateTime.minute)}:{str(current_dateTime.second)}"
+    # Перегоняю строку abc в секунды
     rez = datetime.datetime.strptime(abc, '%Y-%m-%d %H:%M:%S').timestamp()
     return rez #отправляю секунды
 
 # Функция Оглавления
 def miniMenu():
+    formaMenu()
     with open("note.json") as file:
         data = json.load(file)
         print("Оглавление: ")
         for key, value in data.items():
             print(f'{key} - {value[0]}')
+    formaMenu()
 
 # Функция генерация нового Id
 def findId(dictJson):
-    return len(dictJson) + 1
+    return len(dictJson) + 2 # я не знаю почему 2 (но если будет 1 то произойдет наслаивание и дублирование последнего ключа)
+
+def formaMenu():
+    print("#" * 30)
 
 # Добавляю элемент в заметки
 def addNote(noteTitle, bodyTitle):
@@ -61,6 +69,7 @@ def addNote(noteTitle, bodyTitle):
 def readJson(nums):
     # Прочтение заметки
     with open("note.json") as file:
+        formaMenu()
         data = json.load(file)  # передаем файловый объект (распаковка из json в словарь)
         if nums == "all":  # выводим на экран все заметки
             for key, value in data.items():
@@ -84,6 +93,7 @@ def readJson(nums):
             print(f'{date_time}')
         else:
             print("Error!!! Не корректный id")
+        formaMenu()
 
 # функция сортировки
 def sortJson():
@@ -91,16 +101,15 @@ def sortJson():
     with open("note.json", "r") as file1:
         dictJson = json.load(file1)
         qw = input("Сортировку проводить по id или по time? id/time: ")
-        if qw == "time": # сортировка по времени (НАДО доработать так как сортирует не по дате а по цифре)
+        if qw == "time": # сортировка по времени
             newDictSort = dict(sorted(dictJson.items(), key=lambda item: item[1][2]))
         elif qw == "id": # сортировка по id
-            newDictSort = dict(sorted(dictJson.items()))
+            newDictSort = dict(sorted(dictJson.items(), key=lambda item: int(item[0])))
             print(newDictSort)
         else:
             print("Невернный ввод")
     with open('note.json', 'w') as file: # запись в Json нового словаря
         json.dump(newDictSort, file, indent=2, ensure_ascii=False)
-
 
 # Функция редактирования заметок
 def editJson(num):
@@ -127,6 +136,7 @@ def editJson(num):
                 newDickJson[key] = value
         with open('note.json', 'w') as file:
             json.dump(newDickJson, file, indent=2, ensure_ascii=False)
+            print("Заметка изменена успешно!")
     else:
         print("Неверный ввод. Такой id не найден")
 
@@ -150,6 +160,7 @@ def clearJson(num):
                 newDickJson[key] = value
         with open('note.json', 'w') as file:
             json.dump(newDickJson, file, indent=2, ensure_ascii=False)
+            print("Заметка удалена успешно!")
     elif num == "all":
         with open("note.json", "w") as file1:
             json.dump(dict(), file1, indent=2, ensure_ascii=False)  # записываю в файл пустой словарь
@@ -161,7 +172,7 @@ sizeOfDictJson = os.path.getsize("note.json")  # определяю пустой
 if sizeOfDictJson == 0:
     with open("note.json", "w") as file1:
         json.dump(dict(), file1, indent=2, ensure_ascii=False)  # записываю в файл пустой словарь
-
+formaMenu()
 print(f"Дата: {datetime.datetime.fromtimestamp(DTofNote())}")  # Вывод времени на экран
 
 # Меню ввода
